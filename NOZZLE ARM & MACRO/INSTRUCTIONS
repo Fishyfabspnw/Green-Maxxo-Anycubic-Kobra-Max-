@@ -1,4 +1,5 @@
-Nozzle Brush Arm Configuration Instructions
+# Nozzle Brush Arm Configuration Instructions
+
 
 This guide provides step-by-step instructions for configuring and using a nozzle brush arm on your 3D printer. The setup includes macros for deploying, retracting, and using the brush arm to clean the nozzle. These instructions are intended for users to implement into their builds.
 
