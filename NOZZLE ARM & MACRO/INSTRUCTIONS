@@ -1,0 +1,122 @@
+Nozzle Brush Arm Configuration Instructions
+
+This guide provides step-by-step instructions for configuring and using a nozzle brush arm on your 3D printer. The setup includes macros for deploying, retracting, and using the brush arm to clean the nozzle. These instructions are intended for users to implement into their builds.
+
+Prerequisites
+
+Before proceeding, ensure the following:
+
+Your 3D printer has a brush arm actuator installed.
+
+A stepper driver is configured for the brush arm actuator.
+
+You are using Klipper firmware for your 3D printer.
+
+An endstop switch is installed for homing the actuator.
+
+Klipper Configuration
+
+To enable the nozzle brush arm functionality, add the following macros to your printer.cfg file.
+
+Deploy Brush Arm
+
+This macro deploys the nozzle brush arm to the cleaning position.
+
+[gcode_macro DEPLOY_BRUSH_ARM]
+gcode:
+  MANUAL_STEPPER STEPPER=brush_actuator MOVE=100 SPEED=200 STOP_ON_ENDSTOP=1
+  MANUAL_STEPPER STEPPER=brush_actuator SET_POSITION=0
+  MANUAL_STEPPER STEPPER=brush_actuator MOVE=-90 SPEED=200
+
+Retract Brush Arm
+
+This macro retracts the nozzle brush arm to its storage position.
+
+[gcode_macro UNDEPLOY_BRUSH_ARM]
+gcode:
+  MANUAL_STEPPER STEPPER=brush_actuator MOVE=90 SPEED=200 STOP_ON_ENDSTOP=1
+  MANUAL_STEPPER STEPPER=brush_actuator SET_POSITION=0 SYNC=0
+
+Clean Nozzle
+
+This macro performs a nozzle cleaning sequence using the brush arm.
+
+[gcode_macro CLEAN_NOZZLE]
+gcode:
+  G91                            ; Set relative positioning
+  G1 Z23 F1200                   ; Raise the Z-axis to avoid collisions
+  G90                            ; Restore absolute positioning
+
+  MANUAL_STEPPER STEPPER=brush_actuator MOVE=100 SPEED=200 STOP_ON_ENDSTOP=1
+  MANUAL_STEPPER STEPPER=brush_actuator MOVE=-5 SPEED=100
+  MANUAL_STEPPER STEPPER=brush_actuator MOVE=100 SPEED=50 STOP_ON_ENDSTOP=1
+  MANUAL_STEPPER STEPPER=brush_actuator SET_POSITION=0
+  MANUAL_STEPPER STEPPER=brush_actuator MOVE=-87 SPEED=300
+
+  G1 X65 Y75 Z24 F6000           ; Move to the starting position
+  G1 X15 F6000                   ; Perform cleaning motion
+  G1 X65 F6000                   ; Return to the start
+  G1 X15 F6000                   ; Repeat motion
+  G1 X65 F6000 E0.2              ; Wipe with slight extrusion
+  G1 X15 F9000                   ; Final wipe
+  G1 X75 F9000 E-0.2             ; Retract filament slightly
+
+  MANUAL_STEPPER STEPPER=brush_actuator MOVE=90 SPEED=300 STOP_ON_ENDSTOP=1
+  MANUAL_STEPPER STEPPER=brush_actuator SET_POSITION=0 SYNC=0
+  MANUAL_STEPPER STEPPER=brush_actuator ENABLE=0
+
+Usage Instructions
+
+Deploying the Brush Arm
+
+To deploy the brush arm, run the following command:
+
+DEPLOY_BRUSH_ARM
+
+Cleaning the Nozzle
+
+To clean the nozzle using the brush arm, run:
+
+CLEAN_NOZZLE
+
+This macro will:
+
+Raise the Z-axis to avoid collisions.
+
+Deploy the brush arm.
+
+Move the nozzle across the brush in a cleaning motion.
+
+Retract the brush arm after cleaning.
+
+Retracting the Brush Arm
+
+To retract the brush arm manually, use:
+
+UNDEPLOY_BRUSH_ARM
+
+Integration with Print Start G-code
+
+For automated cleaning before every print, add the following to your slicer’s start G-code:
+
+CLEAN_NOZZLE
+
+Troubleshooting
+
+Brush Arm Does Not Deploy Correctly:
+
+Verify the MOVE and SPEED values in the macros.
+
+Ensure the actuator is properly installed and the stepper driver is configured.
+
+Nozzle Does Not Clean Effectively:
+
+Adjust the X, Y, and Z values in the CLEAN_NOZZLE macro to better align with the brush.
+
+Increase the number of cleaning passes if necessary.
+
+Collisions During Cleaning:
+
+Ensure the Z-axis raises sufficiently before deploying the brush arm.
+
+Verify the coordinates in the macros to avoid hitting the bed or other componen
